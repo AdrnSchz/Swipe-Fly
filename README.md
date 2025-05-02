@@ -12,23 +12,21 @@ Our platform aims to solve the age-old problem of coordinating a meetup for frie
 * **Intelligent Recommendation Engine:** Our backend integrates with various APIs (flights, weather, points of interest, events) to generate relevant destination suggestions based on the group's collective preferences.
 * **Collaborative Decision-Making:** Real-time voting updates and potential chat functionality to facilitate discussion and consensus building within the group.
 
-**This project leverages:** (Adapt this section based on your actual tech stack)
+**This project leverages:** 
 
-* **Frontend:** [Your Frontend Framework/Libraries - e.g., React, Vue.js, HTML/CSS/JavaScript]
-* **Backend:** [Your Backend Framework/Language - e.g., Node.js, Python/Flask, Java/Spring]
-* **Database:** [Your Database Choice - e.g., PostgreSQL, MongoDB]
-* **APIs:** [List the APIs you plan to use - e.g., Skyscanner API (or similar flight API), OpenWeatherMap API, Google Places API]
+* **Frontend:** [React, HTML/CSS/JavaScript]
+* **Backend:** [Node.js/Express]
+* **Database:** [PostgreSQL, MongoDB]
+* **APIs:** [Skyscanner API, OpenWeatherMap API, Google Places API]
 
 **Getting Started (for developers/judges):**
 
-[Include instructions on how to set up and run your project locally. This might involve:]
-
 1.  Cloning the repository.
-2.  Installing dependencies (e.g., `npm install`, `pip install -r requirements.txt`).
+2.  Installing dependencies (e.g., `npm install`, yarn add, bun...).
 3.  Setting up environment variables (API keys, database credentials).
 4.  Running the frontend and backend servers.
 
-**Team:** [Your Team Name and Member Names (Optional)]
+**Team:** [Marc Pascual, Denis Vera, Mario Leiva & Adrián Sánchez]
 
 We are excited to present our solution for making reunions easier and more enjoyable!
 
