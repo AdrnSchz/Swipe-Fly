@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import reactLogo from './assets/images/SkyScannerLogo.png';
-import viteLogo from '/vite.svg';
 import './App.css';
+import ChatApp from './components/ChatApp';
+
 
 // Componente del SVG con path vacío
 const SkyScannerLogo = ({ color = '#000', size = '150px', ...props }) => (
@@ -53,7 +53,7 @@ function App() {
             </div>
           </div>
         </nav>
-        
+        <ChatApp />
       </div>
 
 

@@ -37,9 +37,27 @@
 
 .menu-nav-pages{
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: start;
   align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+}
+
+.menu-nav-pages::-webkit-scrollbar {
+  height: 6px;
+}
+
+.menu-nav-pages::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+.menu-nav-pages::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .menu-nav-item{
