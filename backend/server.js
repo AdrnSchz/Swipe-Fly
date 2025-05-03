@@ -6,9 +6,11 @@ const morgan = require("morgan");
 const authRoutes = require("./Routes/auth");
 const flightsRoutes = require('./Routes/flight');
 const userRoutes = require("./Routes/user");
+const airportSuggestions= require("./Routes/airport_suggestions");
 const groupRoutes = require("./Routes/groups");
 const userPreferencesRoutes = require("./Routes/user_preferences");
 const db = require("./db");
+
 
 // Load environment variables from .env in backend directory
 dotenv.config({ path: path.resolve(__dirname, ".env") });
@@ -29,6 +31,7 @@ app.use('/api/flights', flightsRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/user_preferences', userPreferencesRoutes);
+app.use('/api/airport/suggestions', airportSuggestions);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
