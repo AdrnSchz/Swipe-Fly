@@ -83,4 +83,55 @@ router.get('/', async (req, res, next) => {
     }
 });
 
+router.get('/:id', async (req, res, next) => {
+    const { id } = req.params;
+
+    try {
+        // 1. Obtener el usuario
+        const userResult = await db.query(`SELECT * FROM users WHERE id = ?`, [id]);
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const user = userResult.rows[0];
+
+        // 2. Obtener sus preferencias
+        const prefsResult = await db.query(`
+        SELECT preference_type, preference_value
+        FROM user_preferences
+        WHERE user_id = ?
+        ORDER BY preference_type
+      `, [id]);
+
+        const preferences = prefsResult.rows.map(p => ({
+            type: p.preference_type,
+            value: p.preference_value
+        }));
+
+        // 3. Obtener sus grupos
+        const groupsResult = await db.query(`
+        SELECT g.*
+        FROM groups g
+        JOIN group_members gm ON gm.group_id = g.id
+        WHERE gm.user_id = ?
+        ORDER BY g.id
+      `, [id]);
+
+        const groups = groupsResult.rows;
+
+        // 4. Combinar y responder
+        res.status(200).json({
+            ...user,
+            preferences,
+            groups
+        });
+
+    } catch (err) {
+        console.error('Error fetching user by ID:', err);
+        next(err);
+    }
+});
+
+
 module.exports = router;
