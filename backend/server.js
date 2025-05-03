@@ -4,6 +4,7 @@ const dotenv = require("dotenv");
 const path = require("path");
 const morgan = require("morgan");
 const authRoutes = require("./Routes/auth");
+const flightsRoutes = require('./Routes/flight');
 const db = require("./db");
 
 // Load environment variables from .env in backend directory
@@ -20,8 +21,8 @@ app.use(morgan("dev")); // Request logging
 
 // ======================
 // Routes
-// ======================
-app.use("/api/auth", authRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/flights', flightsRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
