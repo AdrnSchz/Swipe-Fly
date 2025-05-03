@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import './SwipeAndFlyScreen.css'; // Crea este archivo CSS
+import React, { useState, useRef, useEffect } from 'react';
+import './SwipeAndFlyScreen.css';
 import stuttgart from './../assets/images/stuttgart.jpeg';
 import colonia from './../assets/images/colonia.jpg';
 
@@ -7,7 +7,7 @@ const initialDestinations = [
     {
         id: 1,
         name: 'STUTTGART',
-        image: stuttgart, // Asigna directamente la variable importada
+        image: stuttgart,
         details: {
             tags: ['Fresco montaña', 'Ruinas ancestrales', 'Coches y carreras'],
             hotels: 'Hoteles desde 70€/noche',
@@ -18,7 +18,7 @@ const initialDestinations = [
     {
         id: 2,
         name: 'COLONIA',
-        image: colonia, // Asigna directamente la variable importada
+        image: colonia,
         details: {
             tags: ['Arquitectura gótica', 'Carnaval', 'Río Rin'],
             hotels: 'Hoteles desde 60€/noche',
@@ -32,35 +32,127 @@ const initialDestinations = [
 function SwipeAndFlyScreen() {
     const [currentDestinationIndex, setCurrentDestinationIndex] = useState(0);
     const [showDetails, setShowDetails] = useState(false);
+    const [touchStartX, setTouchStartX] = useState(null);
+    const [touchY, setTouchY] = useState(null);
+    const [offsetX, setOffsetX] = useState(0);
+    const [isSwiping, setIsSwiping] = useState(false);
+    const cardRef = useRef(null);
     const currentDestination = initialDestinations[currentDestinationIndex];
 
-    const handleLike = () => {
-        // Aquí podrías guardar el destino como "me gusta"
+    useEffect(() => {
+        const card = cardRef.current;
+        if (card) {
+            const handleMouseDown = (e) => {
+                setTouchStartX(e.clientX);
+                setTouchY(e.clientY);
+                setIsSwiping(true);
+                card.style.transition = 'none'; // Desactivar la transición para el movimiento en tiempo real
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isSwiping) return;
+                const deltaX = e.clientX - touchStartX;
+                setOffsetX(deltaX);
+                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.03}deg)`;
+            };
+
+            const handleMouseUp = (e) => {
+                if (!isSwiping) return;
+                setIsSwiping(false);
+                card.style.transition = 'transform 0.3s ease-out'; // Activar la transición para la animación final
+
+                if (Math.abs(offsetX) > 100) {
+                    // Considerar como swipe
+                    if (offsetX > 0) {
+                        handleLikeSwipe();
+                    } else {
+                        handleDislikeSwipe();
+                    }
+                } else {
+                    // Volver a la posición original
+                    setOffsetX(0);
+                    card.style.transform = 'translateX(0) rotate(0deg)';
+                }
+            };
+
+            const handleTouchStart = (e) => {
+                setTouchStartX(e.touches[0].clientX);
+                setTouchY(e.touches[0].clientY);
+                setIsSwiping(true);
+                card.style.transition = 'none';
+            };
+
+            const handleTouchMove = (e) => {
+                if (!isSwiping || e.touches.length !== 1) return;
+                const deltaX = e.touches[0].clientX - touchStartX;
+                setOffsetX(deltaX);
+                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.03}deg)`;
+            };
+
+            const handleTouchEnd = (e) => {
+                if (!isSwiping) return;
+                setIsSwiping(false);
+                card.style.transition = 'transform 0.3s ease-out';
+
+                if (Math.abs(offsetX) > 80) {
+                    if (offsetX > 0) {
+                        handleLikeSwipe();
+                    } else {
+                        handleDislikeSwipe();
+                    }
+                } else {
+                    setOffsetX(0);
+                    card.style.transform = 'translateX(0) rotate(0deg)';
+                }
+            };
+
+            card.addEventListener('mousedown', handleMouseDown);
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+
+            card.addEventListener('touchstart', handleTouchStart);
+            window.addEventListener('touchmove', handleTouchMove, { passive: false }); // Evitar el comportamiento de scroll predeterminado
+            window.addEventListener('touchend', handleTouchEnd);
+            window.addEventListener('touchcancel', handleTouchEnd);
+
+            return () => {
+                card.removeEventListener('mousedown', handleMouseDown);
+                window.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('mouseup', handleMouseUp);
+                card.removeEventListener('touchstart', handleTouchStart);
+                window.removeEventListener('touchmove', handleTouchMove);
+                window.removeEventListener('touchend', handleTouchEnd);
+                window.removeEventListener('touchcancel', handleTouchEnd);
+            };
+        }
+    }, [isSwiping, touchStartX, touchY, offsetX]);
+
+    const handleLikeSwipe = () => {
         if (currentDestinationIndex < initialDestinations.length - 1) {
             setCurrentDestinationIndex(currentDestinationIndex + 1);
+            setOffsetX(0);
         } else {
-            alert('¡Has visto todos los destinos!');
+            setOffsetX(0);
         }
         setShowDetails(false);
     };
 
-    const handleDislike = () => {
-        // Aquí podrías guardar el destino como "no me gusta"
+    const handleDislikeSwipe = () => {
         if (currentDestinationIndex < initialDestinations.length - 1) {
             setCurrentDestinationIndex(currentDestinationIndex + 1);
+            setOffsetX(0);
         } else {
-            alert('¡Has visto todos los destinos!');
+            setOffsetX(0);
         }
         setShowDetails(false);
     };
 
     const handleNeutral = () => {
-        // Aquí podrías implementar alguna acción para el botón neutral
-        alert('Opción neutral seleccionada');
         if (currentDestinationIndex < initialDestinations.length - 1) {
             setCurrentDestinationIndex(currentDestinationIndex + 1);
+            setOffsetX(0);
         } else {
-            alert('¡Has visto todos los destinos!');
+            setOffsetX(0);
         }
         setShowDetails(false);
     };
@@ -70,16 +162,16 @@ function SwipeAndFlyScreen() {
     };
 
     if (!currentDestination) {
-        return <div>Cargando destinos...</div>; // O un mensaje de "no hay destinos"
+        return <div>Cargando destinos...</div>;
     }
 
     return (
         <div className="swipe-and-fly-container">
-            <div className="destination-card">
+            <div ref={cardRef} className="destination-card" style={{ transform: `translateX(${offsetX}px) rotate(${offsetX * 0.03}deg)` }}>
                 <img src={currentDestination.image} alt={currentDestination.name} className="destination-image" />
                 <div className="destination-info">
                     <h2>{currentDestination.name}</h2>
-                    <p>Vuelos desde: 50€</p> {/* Esto podría ser dinámico */}
+                    <p>Vuelos desde: 50€</p>
                 </div>
                 <button className="details-button" onClick={toggleDetails}>
                     <svg viewBox="0 0 24 24" fill="currentColor" className="icon">
@@ -103,9 +195,9 @@ function SwipeAndFlyScreen() {
                 )}
             </div>
             <div className="swipe-buttons">
-                <button className="dislike-button" onClick={handleDislike}>NO ME GUSTA</button>
+                <button className="dislike-button" onClick={handleDislikeSwipe}>NO ME GUSTA</button>
                 <button className="neutral-button" onClick={handleNeutral}>=</button>
-                <button className="like-button" onClick={handleLike}>ME GUSTA</button>
+                <button className="like-button" onClick={handleLikeSwipe}>ME GUSTA</button>
             </div>
         </div>
     );
