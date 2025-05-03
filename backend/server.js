@@ -3,6 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require('morgan');
 const authRoutes = require('./Routes/auth');
+const flightsRoutes = require('./Routes/flight');
 const db = require('./db');
 
 dotenv.config();
@@ -16,7 +17,9 @@ app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/flights', flightsRoutes);
 
+//test
 app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "OK", message: "Server is running" });
 });
