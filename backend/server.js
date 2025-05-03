@@ -7,6 +7,8 @@ const authRoutes = require("./Routes/auth");
 const flightsRoutes = require('./Routes/flight');
 const userRoutes = require("./Routes/user");
 const airportSuggestions= require("./Routes/airport_suggestions");
+const groupRoutes = require("./Routes/groups");
+const userPreferencesRoutes = require("./Routes/user_preferences");
 const db = require("./db");
 
 
@@ -27,6 +29,8 @@ app.use(morgan("dev")); // Request logging
 app.use('/api/auth', authRoutes);
 app.use('/api/flights', flightsRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/user_preferences', userPreferencesRoutes);
 app.use('/api/airport/suggestions', airportSuggestions);
 
 // Health check endpoint
@@ -36,41 +40,6 @@ app.get("/api/health", (req, res) => {
     message: "Server is running",
     timestamp: new Date().toISOString()
   });
-});
-
-// ======================
-// JWT Authentication Middleware
-// ======================
-const authenticate = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-  const token = authHeader?.split(" ")[1]; // Get token after 'Bearer '
-
-  if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user to request
-    next();
-  } catch (err) {
-    console.error("JWT verification error:", err);
-    res.status(401).json({ error: "Invalid token" });
-  }
-};
-
-// Example protected route
-app.get("/api/profile", authenticate, async (req, res) => {
-  try {
-    const user = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ?",
-      [req.user.id]
-    );
-    res.json(user.rows[0]);
-  } catch (err) {
-    console.error("Profile error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
 });
 
 // ======================

@@ -1,15 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import './App.css';
 import ChatApp from './components/ChatApp';
+import LoginScreen from './components/LoginScreen';
+import RegisterScreen from './components/RegisterScreen';
 
 
-// Componente del SVG con path vacío
+// Componente del SVG (sin cambios) ...
 const SkyScannerLogo = ({ color = '#000', size = '150px', ...props }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 910 149"
     width={size}
-    height='auto'
+    height="auto"
     {...props}
   >
     {/* Path vacío - puedes añadir tu contenido SVG aquí */}
@@ -18,10 +21,26 @@ const SkyScannerLogo = ({ color = '#000', size = '150px', ...props }) => (
 );
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  useEffect(() => {
+    // Simulación de verificación de token al cargar la aplicación
+    const token = localStorage.getItem('authToken');
+    setIsAuthenticated(!!token);
+  }, []);
+
+  const handleLoginSuccess = (authToken) => {
+    localStorage.setItem('authToken', authToken);
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    setIsAuthenticated(false);
+  };
 
   return (
-    <>
+    <Router>
       <div className='main-screen'>
         <nav className="menu-nav">
           <div className="menu-nav-title">
@@ -31,7 +50,7 @@ function App() {
               className="skyscanner-logo"
             />
             <div className='menu-nav-title-left'>
-              ♥️  😀  📅
+              ♥️  😀  📅
             </div>
           </div>
           <div className='menu-nav-pages'>
@@ -53,11 +72,18 @@ function App() {
             </div>
           </div>
         </nav>
-        <ChatApp />
+        <div className="auth-container">
+          <Routes>
+            <Route path="/login" element={<LoginScreen onLoginSuccess={handleLoginSuccess} />} />
+            <Route path="/register" element={<RegisterScreen />} />
+            <Route
+              path="/"
+              element={isAuthenticated ? <ChatApp onLogout={handleLogout} /> : <Navigate to="/login" />}
+            />
+          </Routes>
+        </div>
       </div>
-
-
-    </>
+    </Router>
   );
 }
 
