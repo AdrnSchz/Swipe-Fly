@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const dotenv = require('dotenv');
-
+const { suggestCities } = require('../services/suggestCities');
 dotenv.config();
 const router = express.Router();
 
@@ -105,5 +105,8 @@ router.get('/', async (req, res, next) => {
         next(err);
     }
 });
+
+
+
 
 module.exports = router;
