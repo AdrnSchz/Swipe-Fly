@@ -5,6 +5,7 @@ const path = require("path");
 const morgan = require("morgan");
 const authRoutes = require("./Routes/auth");
 const flightsRoutes = require('./Routes/flight');
+const userRoutes = require("./Routes/user");
 const db = require("./db");
 
 // Load environment variables from .env in backend directory
@@ -23,6 +24,7 @@ app.use(morgan("dev")); // Request logging
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/flights', flightsRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -31,41 +33,6 @@ app.get("/api/health", (req, res) => {
     message: "Server is running",
     timestamp: new Date().toISOString()
   });
-});
-
-// ======================
-// JWT Authentication Middleware
-// ======================
-const authenticate = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-  const token = authHeader?.split(" ")[1]; // Get token after 'Bearer '
-
-  if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user to request
-    next();
-  } catch (err) {
-    console.error("JWT verification error:", err);
-    res.status(401).json({ error: "Invalid token" });
-  }
-};
-
-// Example protected route
-app.get("/api/profile", authenticate, async (req, res) => {
-  try {
-    const user = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ?",
-      [req.user.id]
-    );
-    res.json(user.rows[0]);
-  } catch (err) {
-    console.error("Profile error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
 });
 
 // ======================
@@ -81,8 +48,7 @@ app.use((err, req, res, next) => {
   
   res.status(err.status || 500).json({
     error: {
-      message: err.message || "Internal Server Error",
-      ...(process.env.NODE_ENV === "development" && { stack: err.stack })
+      message: err.message || "Internal Server Error"
     }
   });
 });
