@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require('morgan');
-const authRoutes = require('./Routes/auth');
+const authRoutes = require('./routes/auth');
 const db = require('./db');
 
 dotenv.config();
@@ -12,7 +12,7 @@ const app = express();
 // Middlewares
 app.use(cors()); 
 app.use(express.json()); 
-app.use(morgan('dev'));
+app.use(morgan('dev'));y
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -34,12 +34,12 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, async () => {
-    console.log(`Server is running on port ${PORT}`);
-    
-    try {
-      const result = await db.query('SELECT 1');
-      console.log("Database connected successfully");
-    } catch (error) {
-      console.error("Database connection error:", error.message);
-    }
-  });
+  console.log(`Server is running on port ${PORT}`);
+  
+  try {
+    const result = await db.query('SELECT NOW()'); // Test query to check database connection
+    console.log("Database connected successfully:", result.rows[0]);
+  } catch (error) {
+    console.error("Database connection error:", error.message);
+  }
+});

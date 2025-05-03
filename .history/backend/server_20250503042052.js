@@ -37,8 +37,8 @@ app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
     
     try {
-      const result = await db.query('SELECT 1');
-      console.log("Database connected successfully");
+      const result = await db.query('SELECT 1 AS test');
+      console.log("Database connected successfully. Test query result:", result.rows[0]);
     } catch (error) {
       console.error("Database connection error:", error.message);
     }

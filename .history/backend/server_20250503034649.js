@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const morgan = require('morgan');
-const authRoutes = require('./Routes/auth');
+//const authRoutes = require('./routes/auth');
 const db = require('./db');
 
 dotenv.config();
@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // Routes
-app.use('/api/auth', authRoutes);
+//app.use('/api/auth', authRoutes);
 
 app.get("/api/health", (req, res) => {
     res.status(200).json({ status: "OK", message: "Server is running" });
@@ -38,7 +38,7 @@ app.listen(PORT, async () => {
     
     try {
       const result = await db.query('SELECT 1');
-      console.log("Database connected successfully");
+      console.log("Turso database connected successfully!");
     } catch (error) {
       console.error("Database connection error:", error.message);
     }

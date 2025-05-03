@@ -34,12 +34,12 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 4000;
 
 app.listen(PORT, async () => {
-    console.log(`Server is running on port ${PORT}`);
-    
-    try {
-      const result = await db.query('SELECT 1');
-      console.log("Database connected successfully");
-    } catch (error) {
-      console.error("Database connection error:", error.message);
-    }
-  });
+  console.log(`Server is running on port ${PORT}`);
+  
+  try {
+    const result = await db.query('SELECT NOW()'); // Test query to check database connection
+    console.log("Database connected successfully:", result.rows[0]);
+  } catch (error) {
+    console.error("Database connection error:", error.message);
+  }
+});

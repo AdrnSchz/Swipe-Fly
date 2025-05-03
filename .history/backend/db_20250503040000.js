@@ -4,8 +4,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Verify environment variables
-if (!process.env.TURSO_DATABASE_URL) {
-  throw new Error('Missing TURSO_DATABASE_URL in .env file');
+if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+  throw new Error('Missing Turso database configuration in .env file');
 }
 
 const client = createClient({
@@ -15,8 +15,8 @@ const client = createClient({
 
 // Test connection immediately
 client.execute('SELECT 1')
-  .then(() => console.log('✓ Turso database connected'))
-  .catch(err => console.error('✗ Turso connection error:', err.message));
+  .then(() => console.log('✓ Connected to Turso database'))
+  .catch(err => console.error('✗ Connection failed:', err.message));
 
 module.exports = {
   query: async (text, params) => {
