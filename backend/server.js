@@ -6,6 +6,8 @@ const morgan = require("morgan");
 const authRoutes = require("./Routes/auth");
 const flightsRoutes = require('./Routes/flight');
 const userRoutes = require("./Routes/user");
+const groupRoutes = require("./Routes/groups");
+const userPreferencesRoutes = require("./Routes/user_preferences");
 const db = require("./db");
 
 // Load environment variables from .env in backend directory
@@ -25,6 +27,8 @@ app.use(morgan("dev")); // Request logging
 app.use('/api/auth', authRoutes);
 app.use('/api/flights', flightsRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/user_preferences', userPreferencesRoutes);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
