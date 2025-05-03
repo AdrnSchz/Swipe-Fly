@@ -1,35 +1,58 @@
 const express = require('express');
-const db = require('../db'); // asumiendo que usas db.execute o db.query
+const db = require('../db');
 
 const router = express.Router();
-
+//http://localhost:4000/api/users?group_id=3 
+//obtienes el usuario con las preferencias y grupos al cual pertenece
 router.get('/', async (req, res, next) => {
     try {
-        // 1. Obtener todos los usuarios
-        const usersResult = await db.execute(`
-      SELECT id, username, email, home_location, created_at
-      FROM users
-      ORDER BY id
-      LIMIT 50
-    `);
+        const { group_id } = req.query;
 
-        // 2. Obtener todas las preferencias
-        const prefsResult = await db.execute(`
-      SELECT user_id, preference_type, preference_value
+        // 1. Obtener todos los usuarios (filtrados si hay group_id)
+        let usersResult;
+        if (group_id) {
+            // Buscar usuarios por grupo
+            usersResult = await db.query(`
+        SELECT u.*
+        FROM users u
+        JOIN group_members gm ON gm.user_id = u.id
+        WHERE gm.group_id = ?
+        ORDER BY u.id
+        LIMIT 50
+      `, [group_id]);
+        } else {
+            usersResult = await db.query(`
+        SELECT *
+        FROM users
+        ORDER BY id
+        LIMIT 50
+      `);
+        }
+
+        const userIds = usersResult.rows.map(u => u.id);
+        if (userIds.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        // 2. Obtener preferencias solo para los usuarios seleccionados
+        const prefsResult = await db.query(`
+      SELECT *
       FROM user_preferences
+      WHERE user_id IN (${userIds.map(() => '?').join(',')})
       ORDER BY user_id, preference_type
       LIMIT 100
-    `);
+    `, userIds);
 
-        // 3. Obtener todos los grupos
-        const groupsResult = await db.execute(`
-      SELECT user_id, group_id
+        // 3. Obtener grupos solo para los usuarios seleccionados
+        const groupsResult = await db.query(`
+      SELECT *
       FROM group_members
+      WHERE user_id IN (${userIds.map(() => '?').join(',')})
       ORDER BY group_id, user_id
       LIMIT 100
-    `);
+    `, userIds);
 
-        // 4. Reorganizar por usuario
+        // 4. Reorganizar
         const prefsMap = {};
         prefsResult.rows.forEach(pref => {
             if (!prefsMap[pref.user_id]) prefsMap[pref.user_id] = [];
@@ -45,7 +68,7 @@ router.get('/', async (req, res, next) => {
             groupsMap[gm.user_id].push(gm.group_id);
         });
 
-        // 5. Construir respuesta combinada
+        // 5. Combinar
         const users = usersResult.rows.map(user => ({
             ...user,
             preferences: prefsMap[user.id] || [],

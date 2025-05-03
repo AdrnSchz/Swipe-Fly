@@ -1,0 +1,50 @@
+.chat-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    position:relative;
+}
+
+.chat-header{
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+    padding: 15px;
+}
+
+.chat-header>img{
+    width: 50px;
+    height: 50px;
+}
+
+.chat-header>h2{
+    margin-left: 10px;
+    font-weight: 400;
+}
+
+.chat-body{
+    height: 100%;
+    width: 100%;
+    border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    justify-content: end;
+}
+
+.chat-footer{
+    width: 100%;
+    height: 50px;
+    border: solid black 1px;
+}
+
+.primary-button{
+    position: absolute;
+    top: 0;
+    left:25%;
+    margin-top: 10px;
+}
