@@ -11,7 +11,7 @@ function ChatApp() {
   };
 
   return (
-    <div>
+    <div className='chat-app'>
       {selectedGroup ? (
         <Chat groupIcon={selectedGroup.icon} groupName={selectedGroup.name} />
       ) : (

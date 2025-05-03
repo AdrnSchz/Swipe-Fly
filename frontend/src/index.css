@@ -34,3 +34,11 @@ html, body {
 a {
   text-decoration: none;
 }
+
+.primary-button{
+  background: var(--color-primary);
+  color: var(--color-white);
+  padding: 15px;
+  border-radius: 15px;
+  font-size: x-large;
+}
