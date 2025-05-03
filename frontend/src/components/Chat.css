@@ -47,9 +47,10 @@
     border: solid black 1px;
 }
 
-.primary-button{
+.primary-button {
     position: absolute;
-    top: 0;
-    left:25%;
+    top: 0%;
+    left: 50%;
+    transform: translateX(-50%);
     margin-top: 10px;
 }
