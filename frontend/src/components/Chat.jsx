@@ -23,7 +23,7 @@ function Chat({ groupIcon, groupName }) {
         <h2>{groupName}</h2>
         {showSwipeScreen && (
           <button className="secondary-button" onClick={handleGoBackToChat}>
-            Volver al Chat
+            RETURN
           </button>
         )}
       </div>
