@@ -36,41 +36,6 @@ app.get("/api/health", (req, res) => {
 });
 
 // ======================
-// JWT Authentication Middleware
-// ======================
-const authenticate = (req, res, next) => {
-  const authHeader = req.header("Authorization");
-  const token = authHeader?.split(" ")[1]; // Get token after 'Bearer '
-
-  if (!token) {
-    return res.status(401).json({ error: "Access denied. No token provided." });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Attach user to request
-    next();
-  } catch (err) {
-    console.error("JWT verification error:", err);
-    res.status(401).json({ error: "Invalid token" });
-  }
-};
-
-// Example protected route
-app.get("/api/profile", authenticate, async (req, res) => {
-  try {
-    const user = await db.query(
-      "SELECT id, username, email FROM users WHERE id = ?",
-      [req.user.id]
-    );
-    res.json(user.rows[0]);
-  } catch (err) {
-    console.error("Profile error:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
-
-// ======================
 // Error Handling
 // ======================
 app.use((err, req, res, next) => {
