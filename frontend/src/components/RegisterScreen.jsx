@@ -1,48 +1,55 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './RegisterScreen.css';
+
+const API_URL = 'http://localhost:4000/api/auth/register';
 
 function RegisterScreen() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordMatchError, setPasswordMatchError] = useState('');
+    const [location, setLocation] = useState('');
+    const [error, setError] = useState('');
     const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
+        setError('');
+
         if (password !== confirmPassword) {
-            setPasswordMatchError('Las contraseñas no coinciden.');
+            setError('Passwords do not match.');
             return;
         }
-        setPasswordMatchError('');
+        
+        const apiData = {
+            username: username,
+            email: email,
+            password: password,
+            location: location,
+        };
 
-        // Simulación de llamada al backend para registrarse
-        // Aquí deberías enviar 'username', 'email' y 'password' a tu backend
-        const response = await new Promise((resolve) =>
-            setTimeout(() => {
-                // Simulación de registro exitoso (siempre exitoso para este ejemplo)
-                resolve({ success: true, message: 'Registro exitoso', token: 'fakeToken' });
-            }, 1000) // Simulación de 1 segundo de espera
-        );
-
-        if (response.success) {
-            alert(response.message);
-            // Aquí podrías decidir si iniciar sesión automáticamente o redirigir al login
-            // Para iniciar sesión automáticamente, podrías llamar a navigate('/') directamente
-            navigate('/login'); // Redirigir al login tras el registro
-        } else {
-            alert(`Error al registrar: ${response.message}`);
+        try {
+            const response = await axios.post(`${API_URL}`, apiData);
+            console.log("Registration response:", response.data);
+            navigate('/login');
+        } catch (err) {
+            console.error("Registration failed:", err);
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError('Registration failed. Please try again.');
+            }
         }
     };
 
     return (
         <div className="register-container">
-            <h2 className="register-title">Crear Cuenta</h2>
+            <h2 className="register-title">Create Account</h2>
             <form onSubmit={handleRegister} className="register-form">
                 <div className="input-group">
-                    <label htmlFor="username">Usuario:</label>
+                    <label htmlFor="username">Username:</label>
                     <input
                         type="text"
                         id="username"
@@ -53,7 +60,7 @@ function RegisterScreen() {
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="email">Correo Electrónico:</label>
+                    <label htmlFor="email">Email:</label>
                     <input
                         type="email"
                         id="email"
@@ -64,7 +71,7 @@ function RegisterScreen() {
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="password">Contraseña:</label>
+                    <label htmlFor="password">Password:</label>
                     <input
                         type="password"
                         id="password"
@@ -75,7 +82,7 @@ function RegisterScreen() {
                     />
                 </div>
                 <div className="input-group">
-                    <label htmlFor="confirmPassword">Confirmar Contraseña:</label>
+                    <label htmlFor="confirmPassword">Confirm Password:</label>
                     <input
                         type="password"
                         id="confirmPassword"
@@ -84,14 +91,25 @@ function RegisterScreen() {
                         className="register-input"
                         required
                     />
-                    {passwordMatchError && <p className="error-message">{passwordMatchError}</p>}
+                </div>
+                <div className="input-group">
+                    <label htmlFor="location">Location:</label>
+                    <input
+                        type="text"
+                        id="location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        className="register-input"
+                        required
+                    />
+                    {error && <p className="error-message">{error}</p>}
                 </div>
                 <button type="submit" className="register-button">
                     Registrarse
                 </button>
             </form>
             <p className="register-login-link">
-                ¿Ya tienes cuenta? <Link to="/login">Inicia Sesión</Link>
+                ¿Already have an account? <Link to="/login">Login</Link>
             </p>
         </div>
     );
