@@ -8,14 +8,38 @@ const saltRounds = 10;
 
 // Registration
 router.post('/register', async (req, res, next) => {
-    const { name, email, password, location, interests } = req.body;
+    const { username, email, password, location } = req.body;
+    
+    if (!username || !email || !password || !location) {
+        return res.status(400).json({ error: 'Name, email, password and location are required.' });
+    }
 
-    // Validate inputs
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Invalid email format.' });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters long ' });
+    }
 
     try {
-        // TODO: Check if user already exists, hash password and insert into db
+        const userExists = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (userExists.rows.length > 0) {
+            return res.status(400).json({ error: 'Email already registered.' });
+        }
 
-        console.log(`User registered: ${newUser.email} (Role: ${newUser.role}, Verified: ${newUser.verified})`);
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        const result = await db.query(
+            'INSERT INTO users (username, email, password_hash, home_location) VALUES (?, ?, ?, ?) RETURNING *',
+            [username, email, hashedPassword, location]
+        );
+        const newUser = result.rows[0];
+
+        delete newUser.password_hash;
+
+        console.log(`User registered: ${newUser.username} (Mail: ${newUser.email})`);
         res.status(201).json({ message: 'User registered successfully.', user: newUser });
 
     } catch (err) {
