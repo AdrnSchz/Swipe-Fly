@@ -57,8 +57,20 @@ router.post('/login', async (req, res, next) => {
 
     try {
         // TODO: Check if user exist and check password
+        const result = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        const user = result.rows[0]
 
-        const jwtSecret = process.env.JWT_SECRET;
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid credentials.' }); // User not found
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password_hash);
+
+        if (!passwordMatch) {
+            return res.status(401).json({ error: 'Invalid credentials.' });
+        }
+
+        /*const jwtSecret = process.env.JWT_SECRET;
         if (!jwtSecret) {
             console.error("JWT_SECRET is not defined in environment variables!");
             return res.status(500).json({ error: "Server configuration error." });
@@ -75,14 +87,14 @@ router.post('/login', async (req, res, next) => {
             tokenPayload,
             jwtSecret,
             { expiresIn: '1h' }
-        );
+        );*/
 
         console.log(`User logged in: ${user.email}`);
         
+        const { password_hash: _, ...userWithoutPassword } = user;
         res.status(200).json({
             message: 'Login successful.',
-            token: token,
-            user: user
+            user: userWithoutPassword
         });
 
     } catch (err) {
