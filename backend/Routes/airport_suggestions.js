@@ -1,6 +1,8 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const { suggestCities } = require('../services/suggestCities');
+const { getCitySummaries } = require('../services/cityData');
+
 const db = require('../db');
 
 dotenv.config();
@@ -38,6 +40,13 @@ router.post('/group/:groupId', async (req, res) => {
     // 3. Sugerir ciudades + tags con IA
     //    ahora suggestCities() devuelve [{ city, tags: [...] }, ...]
     const citiesWithTags = await suggestCities(preferencesText);
+    const cityNames_ = citiesWithTags.map(c => c.city);
+    const summaries = await getCitySummaries(cityNames_);
+
+    // Attach summaries to each city object
+    citiesWithTags.forEach(city => {
+      city.summary = summaries[city.city] || null;
+    });
 
     if (!Array.isArray(citiesWithTags)) {
       return res.status(500).json({ error: 'AI response format invalid.' });
@@ -154,5 +163,19 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+app.post('/api/airport_suggestions/:groupId', async (req, res) => {
+  const groupId = req.params.groupId;
+  const suggestions = await getSuggestionsForGroup(groupId); // however you get them
+
+  const cityNames = suggestions.map(s => s.city);
+  const summaries = await getCitySummaries(cityNames);
+
+  const enrichedSuggestions = suggestions.map(s => ({
+    ...s,
+    summary: summaries[s.city] || 'No description available.',
+  }));
+
+  res.json({ suggestions: enrichedSuggestions });
+});
 
 module.exports = router;
