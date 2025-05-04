@@ -163,7 +163,7 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-app.post('/api/airport_suggestions/:groupId', async (req, res) => {
+router.post('/api/airport_suggestions/:groupId', async (req, res) => {
   const groupId = req.params.groupId;
   const suggestions = await getSuggestionsForGroup(groupId); // however you get them
 
