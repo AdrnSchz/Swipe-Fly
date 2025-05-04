@@ -1,321 +1,168 @@
+// SwipeAndFlyScreen.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import axios from 'axios';
 import './SwipeAndFlyScreen.css';
 import stuttgart from './../assets/images/stuttgart.jpeg';
-import colonia from './../assets/images/colonia.jpg';
-import berlin from './../assets/images/berlin.jpg';
-import bremen from './../assets/images/bremen.jpg';
-import dresde from './../assets/images/dresde.jpg';
+import colonia   from './../assets/images/colonia.jpg';
+import berlin    from './../assets/images/berlin.jpg';
+import bremen    from './../assets/images/bremen.jpg';
+import dresde    from './../assets/images/dresde.jpg';
 import francfort from './../assets/images/francfort.jpg';
-import hamburgo from './../assets/images/hamburgo.jpg';
-import leipzig from './../assets/images/leipzigjpg.jpg';
-import munich from './../assets/images/munich.jpg';
+import hamburgo  from './../assets/images/hamburgo.jpg';
+import leipzig   from './../assets/images/leipzigjpg.jpg';
+import munich    from './../assets/images/munich.jpg';
 import nuremberg from './../assets/images/nuremberg.jpg';
 
 const initialDestinations = [
-    {
-        id: 1,
-        name: 'STUTTGART',
-        image: stuttgart,
-        details: {
-            tags: ['Cars', 'Culture', 'Wine'],
-            hotels: 'From 65 EUR/night',
-            apartments: 'From 40 EUR/night',
-            about: 'Known for Mercedes-Benz and Porsche, Stuttgart offers a rich automotive and cultural history.',
-        },
-    },
-    {
-        id: 2,
-        name: 'COLOGNE',
-        image: colonia,
-        details: {
-            tags: ['Cathedral', 'Carnival', 'Rhine River'],
-            hotels: 'From 55 EUR/night',
-            apartments: 'From 35 EUR/night',
-            about: 'Famous for its impressive Gothic cathedral and its lively carnival.',
-        },
-    },
-    {
-        id: 3,
-        name: 'BERLIN',
-        image: berlin,
-        details: {
-            tags: ['History', 'Art', 'Nightlife'],
-            hotels: 'From 50 EUR/night',
-            apartments: 'From 30 EUR/night',
-            about: 'The German capital, rich in history, culture, and a vibrant nightlife.',
-        },
-    },
-    {
-        id: 4,
-        name: 'MUNICH',
-        image: munich,
-        details: {
-            tags: ['Oktoberfest', 'Beer Gardens', 'Alps'],
-            hotels: 'From 70 EUR/night',
-            apartments: 'From 45 EUR/night',
-            about: 'Known for its beer festival, beer gardens, and proximity to the Alps.',
-        },
-    },
-    {
-        id: 5,
-        name: 'HAMBURG',
-        image: hamburgo,
-        details: {
-            tags: ['Port', 'Music', 'Maritime Life'],
-            hotels: 'From 60 EUR/night',
-            apartments: 'From 40 EUR/night',
-            about: 'A major port city with a rich maritime history and a vibrant music scene.',
-        },
-    },
-    {
-        id: 6,
-        name: 'FRANKFURT',
-        image: francfort,
-        details: {
-            tags: ['Finance', 'Museums', 'Shopping'],
-            hotels: 'From 75 EUR/night',
-            apartments: 'From 50 EUR/night',
-            about: 'Germany\'s financial center, with impressive skyscrapers and a rich cultural offering.',
-        },
-    },
-    {
-        id: 7,
-        name: 'NUREMBERG',
-        image: nuremberg,
-        details: {
-            tags: ['Medieval History', 'Christmas Market', 'World War II'],
-            hotels: 'From 50 EUR/night',
-            apartments: 'From 30 EUR/night',
-            about: 'A city with a rich medieval history and an important role during World War II.',
-        },
-    },
-    {
-        id: 8,
-        name: 'LEIPZIG',
-        image: leipzig,
-        details: {
-            tags: ['Music', 'Universities', 'Alternative Culture'],
-            hotels: 'From 45 EUR/night',
-            apartments: 'From 25 EUR/night',
-            about: 'A university city with a strong musical tradition and a growing alternative cultural scene.',
-        },
-    },
-    {
-        id: 9,
-        name: 'DRESDEN',
-        image: dresde,
-        details: {
-            tags: ['Baroque Architecture', 'Art', 'Elbe River'],
-            hotels: 'From 55 EUR/night',
-            apartments: 'From 35 EUR/night',
-            about: 'Known for its stunning Baroque architecture and valuable art treasures.',
-        },
-    },
-    {
-        id: 10,
-        name: 'BREMEN',
-        image: bremen,
-        details: {
-            tags: ['Fairy Tales', 'Port', 'Old Town'],
-            hotels: 'From 50 EUR/night',
-            apartments: 'From 30 EUR/night',
-            about: 'Famous for the tale of the Bremen Town Musicians and its charming old town.',
-        },
-    },
+  { id:1,  image: stuttgart,  details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:2,  image: colonia,    details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:3,  image: berlin,     details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:4,  image: munich,     details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:5,  image: hamburgo,   details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:6,  image: francfort,  details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:7,  image: nuremberg,  details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:8,  image: leipzig,    details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:9,  image: dresde,     details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:10, image: bremen,     details: { hotels:'…', apartments:'…', about:'…' } },
 ];
 
-function SwipeAndFlyScreen() {
-    const [currentDestinationIndex, setCurrentDestinationIndex] = useState(0);
-    const [showDetails, setShowDetails] = useState(false);
-    const [touchStartX, setTouchStartX] = useState(null);
-    const [touchY, setTouchY] = useState(null);
-    const [offsetX, setOffsetX] = useState(0);
-    const [isSwiping, setIsSwiping] = useState(false);
-    const cardRef = useRef(null);
-    const [noMoreDestinations, setNoMoreDestinations] = useState(false);
-    const currentDestination = initialDestinations[currentDestinationIndex];
+function SwipeAndFlyScreen({ groupId }) {
+  const [cityNames, setCityNames] = useState(
+    initialDestinations.map(() => 'Loading…')
+  );
+  const [tagsList, setTagsList] = useState(
+    initialDestinations.map(() => [])
+  );
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [showDetails, setShowDetails] = useState(false);
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [offsetX, setOffsetX] = useState(0);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [noMore, setNoMore] = useState(false);
+  const cardRef = useRef(null);
 
-    useEffect(() => {
-        const card = cardRef.current;
-        if (card) {
-            const handleMouseDown = (e) => {
-                setTouchStartX(e.clientX);
-                setTouchY(e.clientY);
-                setIsSwiping(true);
-                card.style.transition = 'none'; // Desactivar la transición para el movimiento en tiempo real
-            };
+  // 1) Traer las sugerencias para este grupo
+  useEffect(() => {
+    axios
+      .post(`http://localhost:4000/api/airport/suggestions/group/${groupId}`)
+      .then(res => {
+        const suggestions = res.data.suggestions || [];
+        const names = suggestions.map(s => s.city);
+        const tags  = suggestions.map(s => s.tags || []);
 
-            const handleMouseMove = (e) => {
-                if (!isSwiping) return;
-                const deltaX = e.clientX - touchStartX;
-                setOffsetX(deltaX);
-                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.03}deg)`;
-            };
-
-            const handleMouseUp = (e) => {
-                if (!isSwiping) return;
-                setIsSwiping(false);
-                card.style.transition = 'transform 0.3s ease-out'; // Activar la transición para la animación final
-
-                if (Math.abs(offsetX) > 100) {
-                    // Considerar como swipe
-                    if (offsetX > 0) {
-                        handleLikeSwipe();
-                    } else {
-                        handleDislikeSwipe();
-                    }
-                } else {
-                    // Volver a la posición original
-                    setOffsetX(0);
-                    card.style.transform = 'translateX(0) rotate(0deg)';
-                }
-            };
-
-            const handleTouchStart = (e) => {
-                setTouchStartX(e.touches[0].clientX);
-                setTouchY(e.touches[0].clientY);
-                setIsSwiping(true);
-                card.style.transition = 'none';
-            };
-
-            const handleTouchMove = (e) => {
-                if (!isSwiping || e.touches.length !== 1) return;
-                const deltaX = e.touches[0].clientX - touchStartX;
-                setOffsetX(deltaX);
-                card.style.transform = `translateX(${deltaX}px) rotate(${deltaX * 0.03}deg)`;
-            };
-
-            const handleTouchEnd = (e) => {
-                if (!isSwiping) return;
-                setIsSwiping(false);
-                card.style.transition = 'transform 0.3s ease-out';
-
-                if (Math.abs(offsetX) > 80) {
-                    if (offsetX > 0) {
-                        handleLikeSwipe();
-                    } else {
-                        handleDislikeSwipe();
-                    }
-                } else {
-                    setOffsetX(0);
-                    card.style.transform = 'translateX(0) rotate(0deg)';
-                }
-            };
-
-            card.addEventListener('mousedown', handleMouseDown);
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-
-            card.addEventListener('touchstart', handleTouchStart);
-            window.addEventListener('touchmove', handleTouchMove, { passive: false }); // Evitar el comportamiento de scroll predeterminado
-            window.addEventListener('touchend', handleTouchEnd);
-            window.addEventListener('touchcancel', handleTouchEnd);
-
-            return () => {
-                card.removeEventListener('mousedown', handleMouseDown);
-                window.removeEventListener('mousemove', handleMouseMove);
-                window.removeEventListener('mouseup', handleMouseUp);
-                card.removeEventListener('touchstart', handleTouchStart);
-                window.removeEventListener('touchmove', handleTouchMove);
-                window.removeEventListener('touchend', handleTouchEnd);
-                window.removeEventListener('touchcancel', handleTouchEnd);
-            };
+        // Rellenar hasta 10 entradas
+        const paddedNames = [...names];
+        while (paddedNames.length < initialDestinations.length) {
+          paddedNames.push('—');
         }
-    }, [isSwiping, touchStartX, touchY, offsetX]);
+        const paddedTags = [...tags];
+        while (paddedTags.length < initialDestinations.length) {
+          paddedTags.push([]);
+        }
 
-    const handleLikeSwipe = () => {
-        if (currentDestinationIndex < initialDestinations.length - 1) {
-            setCurrentDestinationIndex(currentDestinationIndex + 1);
-            setOffsetX(0);
+        setCityNames(paddedNames);
+        setTagsList(paddedTags);
+      })
+      .catch(console.error);
+  }, [groupId]);
+
+  // 2) Swipe handlers
+  useEffect(() => {
+    const card = cardRef.current;
+    if (!card) return;
+
+    const onDown = e => {
+      const x = e.clientX ?? e.touches[0].clientX;
+      setTouchStartX(x);
+      setIsSwiping(true);
+      card.style.transition = 'none';
+    };
+    const onMove = e => {
+      if (!isSwiping) return;
+      const x = e.clientX ?? e.touches[0].clientX;
+      const dx = x - touchStartX;
+      setOffsetX(dx);
+      card.style.transform = `translateX(${dx}px) rotate(${dx * 0.03}deg)`;
+    };
+    const onUp = () => {
+      if (!isSwiping) return;
+      setIsSwiping(false);
+      card.style.transition = 'transform 0.3s ease-out';
+      if (Math.abs(offsetX) > 80) {
+        if (currentIdx < initialDestinations.length - 1) {
+          setCurrentIdx(i => i + 1);
+          setOffsetX(0);
         } else {
-            setNoMoreDestinations(true);
-            setOffsetX(0);
+          setNoMore(true);
         }
-        setShowDetails(false);
+      } else {
+        card.style.transform = 'translateX(0) rotate(0deg)';
+        setOffsetX(0);
+      }
+      setShowDetails(false);
     };
 
-    const handleDislikeSwipe = () => {
-        if (currentDestinationIndex < initialDestinations.length - 1) {
-            setCurrentDestinationIndex(currentDestinationIndex + 1);
-            setOffsetX(0);
-        } else {
-            setNoMoreDestinations(true);
-            setOffsetX(0);
-        }
-        setShowDetails(false);
+    card.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    card.addEventListener('touchstart', onDown);
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp);
+
+    return () => {
+      card.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      card.removeEventListener('touchstart', onDown);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
     };
+  }, [isSwiping, touchStartX, offsetX, currentIdx]);
 
-    const handleNeutral = () => {
-        if (currentDestinationIndex < initialDestinations.length - 1) {
-            setCurrentDestinationIndex(currentDestinationIndex + 1);
-            setOffsetX(0);
-        } else {
-            setNoMoreDestinations(true);
-            setOffsetX(0);
-        }
-        setShowDetails(false);
-    };
+  if (noMore) {
+    return <div className="no-destinations">No destinations available</div>;
+  }
 
-    const toggleDetails = () => {
-        setShowDetails(!showDetails);
-    };
+  const dest = initialDestinations[currentIdx];
+  const city = cityNames[currentIdx];
+  const tags = tagsList[currentIdx];
 
-    if (!currentDestination && !noMoreDestinations) {
-        return <div>Loading cities...</div>;
-    }
-
-    return (
-        <div className="swipe-and-fly-container">
-            {noMoreDestinations ? (
-                <div className="no-destinations">No destinations available</div>
-            ) : (
-                <>
-                    <div
-                        ref={cardRef}
-                        className="destination-card"
-                        style={{ transform: `translateX(${offsetX}px) rotate(${offsetX * 0.03}deg)` }}
-                    >
-                        <img src={currentDestination.image} alt={currentDestination.name} className="destination-image" />
-                        <div className="destination-info">
-                            <h2>{currentDestination.name}</h2>
-                            <p>Flights from: 50 EUR</p>
-                        </div>
-                        <button className="details-button" onClick={toggleDetails}>
-                            <svg viewBox="0 0 24 24" fill="currentColor" className="icon">
-                                <path d="M12 13a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-1 5h2v-6h-2v6zm1-10c-3.87 0-7 3.13-7 7s3.13 7 7 7 7-3.13 7-7-3.13-7-7-7zm0 12c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z" />
-                            </svg>
-                        </button>
-                        {showDetails && (
-                            <div className="destination-details">
-                                <h3>Relevant Tags</h3>
-                                <div className="tags">
-                                    {currentDestination.details.tags.map((tag) => (
-                                        <span key={tag} className="tag">{tag}</span>
-                                    ))}
-                                </div>
-                                <h3>Hotels and apartments</h3>
-                                <p>{currentDestination.details.hotels}</p>
-                                <p>{currentDestination.details.apartments}</p>
-                                <h3>About the city</h3>
-                                <p>{currentDestination.details.about}</p>
-                            </div>
-                        )}
-                    </div>
-                    <div className="swipe-buttons">
-                        <button className="dislike-button" onClick={handleDislikeSwipe}>
-                            DISLIKE
-                        </button>
-                        <button className="neutral-button" onClick={handleNeutral}>
-                            =
-                        </button>
-                        <button className="like-button" onClick={handleLikeSwipe}>
-                            LIKE
-                        </button>
-                    </div>
-                </>
-            )}
+  return (
+    <div className="swipe-and-fly-container">
+      <div
+        ref={cardRef}
+        className="destination-card"
+        style={{ transform: `translateX(${offsetX}px) rotate(${offsetX * 0.03}deg)` }}
+      >
+        <img src={dest.image} alt={city} className="destination-image" />
+        <div className="destination-info">
+          <h2>{city}</h2>
+          <p>Flights from: 50 EUR</p>
         </div>
-    );
+        <button className="details-button" onClick={() => setShowDetails(d => !d)}>
+          ℹ️
+        </button>
+        {showDetails && (
+          <div className="destination-details">
+            <h3>Relevant Tags</h3>
+            <div className="tags">
+              {tags.map(t => <span key={t} className="tag">{t}</span>)}
+            </div>
+            <h3>Hotels and apartments</h3>
+            <p>{dest.details.hotels}</p>
+            <p>{dest.details.apartments}</p>
+            <h3>About the city</h3>
+            <p>{dest.details.about}</p>
+          </div>
+        )}
+      </div>
+      <div className="swipe-buttons">
+        <button className="dislike-button" onClick={() => {/* lo mismo que swipe left */}}>DISLIKE</button>
+        <button className="neutral-button" onClick={() => {/* swipe neutral */}}>=</button>
+        <button className="like-button" onClick={() => {/* swipe right */}}>LIKE</button>
+      </div>
+    </div>
+  );
 }
 
 export default SwipeAndFlyScreen;

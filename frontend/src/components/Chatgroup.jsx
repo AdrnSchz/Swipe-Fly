@@ -1,30 +1,48 @@
 // Chatgroup.jsx
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Chatgroup.css';
 import Group from './Group';
 import iconoGris from './../assets/images/iconoGris.png';
 
 function Chatgroup({ onGroupClick }) {
-  const groupsData = [
-    { id: 1, name: 'Viaje verano', status: 'done', icon: iconoGris },
-    { id: 2, name: 'Viaje semana santa', status: 'canceled', icon: iconoGris },
-    { id: 3, name: 'Viaje navidades', status: 'planning', icon: iconoGris },
-  ];
+  const [groupsData, setGroupsData] = useState([]);
+  const stored = localStorage.getItem('userInfo');
+
+  useEffect(() => {
+    if (!stored) return;
+
+    const user = JSON.parse(stored);
+    const userId = user.id;
+
+    axios
+      .get(`http://localhost:4000/api/users/${userId}`)
+      .then(response => {
+        // response.data.groups es el array de grupos del usuario
+        setGroupsData(response.data.groups || []);
+      })
+      .catch(err => {
+        console.error('Error fetching groups:', err);
+      });
+  }, [stored]);
 
   return (
-    <div className='chatgroup-container'>
-      <div className='chatgroup-container-top'>
+    <div className="chatgroup-container">
+      <div className="chatgroup-container-top">
         <h2>Chats</h2>
-        <button>Make your travel group</button>
+        <button onClick={() => onGroupClick(null)}>
+          Make your travel group
+        </button>
       </div>
-      <div className='chatgroup-container-bottom'>
-        {groupsData.map((group) => (
+      <div className="chatgroup-container-bottom">
+        {groupsData.map(group => (
           <Group
             key={group.id}
-            imgSrc={group.icon}
+            imgSrc={group.imageUrl || iconoGris}
             imgAlt={group.name}
             text={group.name}
-            status={group.status}
-            onClick={() => onGroupClick({ icon: group.icon, name: group.name })}
+            status={group.status}  // asume que tu API devuelve un campo `status`
+            onClick={() => onGroupClick(group)}
           />
         ))}
       </div>

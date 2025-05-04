@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Chatgroup from './Chatgroup';
 import Chat from './Chat';
+import iconoGris from './../assets/images/iconoGris.png';
 
 function ChatApp() {
   const [selectedGroup, setSelectedGroup] = useState(null);
@@ -10,10 +11,19 @@ function ChatApp() {
     setSelectedGroup(groupInfo);
   };
 
+  const handleBack = () => {
+    setSelectedGroup(null);
+  };
+
   return (
-    <div className='chat-app'>
+    <div className="chat-app">
       {selectedGroup ? (
-        <Chat groupIcon={selectedGroup.icon} groupName={selectedGroup.name} />
+        <Chat
+          groupId={selectedGroup.id}
+          groupIcon={selectedGroup.imageUrl || iconoGris}
+          groupName={selectedGroup.name}
+          onBack={handleBack}
+        />
       ) : (
         <Chatgroup onGroupClick={handleGroupClick} />
       )}

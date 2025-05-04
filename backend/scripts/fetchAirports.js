@@ -39,7 +39,7 @@ const fetchAirportsForCountry = async (country) => {
       `, [id, name, iata, city, country_code, country_name]);
         }
 
-        console.log(`✓ ${airports.length} airports saved for ${country.name}`);
+        console.log(`✓ ${airports.length} airports save    d for ${country.name}`);
     } catch (err) {
         console.error(`✗ Error fetching airports for ${country.name}:`, err.response?.data || err.message);
     }
