@@ -14,59 +14,78 @@ import munich    from './../assets/images/munich.jpg';
 import nuremberg from './../assets/images/nuremberg.jpg';
 
 const initialDestinations = [
-  { id:1,  image: stuttgart,  details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:2,  image: colonia,    details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:3,  image: berlin,     details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:4,  image: munich,     details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:5,  image: hamburgo,   details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:6,  image: francfort,  details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:7,  image: nuremberg,  details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:8,  image: leipzig,    details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:9,  image: dresde,     details: { hotels:'…', apartments:'…', about:'…' } },
-  { id:10, image: bremen,     details: { hotels:'…', apartments:'…', about:'…' } },
+  { id:1,  image: stuttgart },
+  { id:2,  image: colonia   },
+  { id:3,  image: berlin    },
+  { id:4,  image: munich    },
+  { id:5,  image: hamburgo  },
+  { id:6,  image: francfort },
+  { id:7,  image: nuremberg },
+  { id:8,  image: leipzig   },
+  { id:9,  image: dresde    },
+  { id:10, image: bremen    },
 ];
 
 function SwipeAndFlyScreen({ groupId }) {
-  const [cityNames, setCityNames] = useState(
-    initialDestinations.map(() => 'Loading…')
-  );
-  const [tagsList, setTagsList] = useState(
-    initialDestinations.map(() => [])
-  );
-  const [currentIdx, setCurrentIdx] = useState(0);
+  const [cityNames,   setCityNames]   = useState(initialDestinations.map(()=>'Loading…'));
+  const [tagsList,    setTagsList]    = useState(initialDestinations.map(()=>[]));
+  const [airportList, setAirportList] = useState([]);       // aeropuertos con IATA
+  const [flightInfo,  setFlightInfo]  = useState(null);     // primer vuelo para la tarjeta actual
+
+  const [currentIdx,  setCurrentIdx]  = useState(0);
   const [showDetails, setShowDetails] = useState(false);
   const [touchStartX, setTouchStartX] = useState(null);
-  const [offsetX, setOffsetX] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const [noMore, setNoMore] = useState(false);
+  const [offsetX,     setOffsetX]     = useState(0);
+  const [isSwiping,   setIsSwiping]   = useState(false);
+  const [noMore,      setNoMore]      = useState(false);
   const cardRef = useRef(null);
 
-  // 1) Traer las sugerencias para este grupo
+  // 1) Llamada a POST /api/airport/suggestions/group/:id
+  //    que nos devuelve { suggestions: [{city,tags}], matchedAirports: [{iata,...}] }
   useEffect(() => {
-    axios
-      .post(`http://localhost:4000/api/airport/suggestions/group/${groupId}`)
+    axios.post(`http://localhost:4000/api/airport/suggestions/group/${groupId}`)
       .then(res => {
-        const suggestions = res.data.suggestions || [];
+        const { suggestions = [], matchedAirports = [] } = res.data;
+
+        // extraemos nombres y tags de la IA
         const names = suggestions.map(s => s.city);
         const tags  = suggestions.map(s => s.tags || []);
-
-        // Rellenar hasta 10 entradas
-        const paddedNames = [...names];
-        while (paddedNames.length < initialDestinations.length) {
-          paddedNames.push('—');
+        // rellenamos hasta 10
+        while (names.length < initialDestinations.length) {
+          names.push('—');
+          tags.push([]);
         }
-        const paddedTags = [...tags];
-        while (paddedTags.length < initialDestinations.length) {
-          paddedTags.push([]);
-        }
-
-        setCityNames(paddedNames);
-        setTagsList(paddedTags);
+        setCityNames(names);
+        setTagsList(tags);
+        setAirportList(matchedAirports);
       })
       .catch(console.error);
   }, [groupId]);
 
-  // 2) Swipe handlers
+  // 2) Cuando abrimos detalles, llamamos a GET /api/flights para obtener
+  //    los vuelos desde el primer aeropuerto al aeropuerto actual
+  useEffect(() => {
+    if (!showDetails) return;
+    if (!airportList.length) return;
+
+    const originIata = "LHR";
+    const destAirport = airportList[currentIdx];
+    if (!destAirport) return;
+    const destIata = destAirport.iata;
+
+    // Ejemplo: parámetros de fecha fijos, ajusta según tu UI
+    const params = { from: originIata, to: destIata, year:2025, month:5, day:15 };
+
+    axios.get('http://localhost:4000/api/flights', { params })
+      .then(res => {
+        // suponemos que la respuesta es un array y tomamos el primero
+        const first = Array.isArray(res.data) ? res.data[0] : null;
+        setFlightInfo(first);
+      })
+      .catch(console.error);
+  }, [showDetails, airportList, currentIdx]);
+
+  // 3) Swipe handlers (igual a tu implementación anterior)
   useEffect(() => {
     const card = cardRef.current;
     if (!card) return;
@@ -123,9 +142,10 @@ function SwipeAndFlyScreen({ groupId }) {
     return <div className="no-destinations">No destinations available</div>;
   }
 
-  const dest = initialDestinations[currentIdx];
-  const city = cityNames[currentIdx];
-  const tags = tagsList[currentIdx];
+  const dest   = initialDestinations[currentIdx];
+  const city   = cityNames[currentIdx];
+  const tags   = tagsList[currentIdx];
+  const flight = flightInfo;
 
   return (
     <div className="swipe-and-fly-container">
@@ -137,7 +157,6 @@ function SwipeAndFlyScreen({ groupId }) {
         <img src={dest.image} alt={city} className="destination-image" />
         <div className="destination-info">
           <h2>{city}</h2>
-          <p>Flights from: 50 EUR</p>
         </div>
         <button className="details-button" onClick={() => setShowDetails(d => !d)}>
           ℹ️
@@ -148,16 +167,19 @@ function SwipeAndFlyScreen({ groupId }) {
             <div className="tags">
               {tags.map(t => <span key={t} className="tag">{t}</span>)}
             </div>
-            <h3>Hotels and apartments</h3>
-            <p>{dest.details.hotels}</p>
-            <p>{dest.details.apartments}</p>
-            <h3>About the city</h3>
-            <p>{dest.details.about}</p>
+            <h3>First Flight</h3>
+            {flight ? (
+              <>
+                <p>Duration: {flight.duration}</p>
+              </>
+            ) : (
+              <p>Loading flight…</p>
+            )}
           </div>
         )}
       </div>
       <div className="swipe-buttons">
-        <button className="dislike-button" onClick={() => {/* lo mismo que swipe left */}}>DISLIKE</button>
+        <button className="dislike-button" onClick={() => {/* swipe left */}}>DISLIKE</button>
         <button className="neutral-button" onClick={() => {/* swipe neutral */}}>=</button>
         <button className="like-button" onClick={() => {/* swipe right */}}>LIKE</button>
       </div>
