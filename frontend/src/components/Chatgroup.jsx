@@ -4,6 +4,7 @@ import axios from 'axios';
 import './Chatgroup.css';
 import Group from './Group';
 import iconoGris from './../assets/images/iconoGris.png';
+import Chat from './Chat'; // Importa el componente Chat
 
 function Chatgroup({ onGroupClick }) {
   const [groupsData, setGroupsData] = useState([]);
