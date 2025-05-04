@@ -82,8 +82,11 @@
 
 .tags {
     display: flex;
-    gap: 5px;
+    gap: 8px;
     margin-bottom: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .tag {

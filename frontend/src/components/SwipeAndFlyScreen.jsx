@@ -16,6 +16,7 @@ const initialDestinations = [
         id: 1,
         name: 'STUTTGART',
         image: stuttgart,
+        flightPrice: 80, // Precio de vuelo coherente
         details: {
             tags: ['Cars', 'Culture', 'Wine'],
             hotels: 'From 65 EUR/night',
@@ -27,6 +28,7 @@ const initialDestinations = [
         id: 2,
         name: 'COLOGNE',
         image: colonia,
+        flightPrice: 70, // Precio de vuelo coherente
         details: {
             tags: ['Cathedral', 'Carnival', 'Rhine River'],
             hotels: 'From 55 EUR/night',
@@ -38,6 +40,7 @@ const initialDestinations = [
         id: 3,
         name: 'BERLIN',
         image: berlin,
+        flightPrice: 60, // Precio de vuelo coherente
         details: {
             tags: ['History', 'Art', 'Nightlife'],
             hotels: 'From 50 EUR/night',
@@ -49,6 +52,7 @@ const initialDestinations = [
         id: 4,
         name: 'MUNICH',
         image: munich,
+        flightPrice: 90, // Precio de vuelo coherente
         details: {
             tags: ['Oktoberfest', 'Beer Gardens', 'Alps'],
             hotels: 'From 70 EUR/night',
@@ -60,6 +64,7 @@ const initialDestinations = [
         id: 5,
         name: 'HAMBURG',
         image: hamburgo,
+        flightPrice: 75, // Precio de vuelo coherente
         details: {
             tags: ['Port', 'Music', 'Maritime Life'],
             hotels: 'From 60 EUR/night',
@@ -71,6 +76,7 @@ const initialDestinations = [
         id: 6,
         name: 'FRANKFURT',
         image: francfort,
+        flightPrice: 85, // Precio de vuelo coherente
         details: {
             tags: ['Finance', 'Museums', 'Shopping'],
             hotels: 'From 75 EUR/night',
@@ -82,6 +88,7 @@ const initialDestinations = [
         id: 7,
         name: 'NUREMBERG',
         image: nuremberg,
+        flightPrice: 65, // Precio de vuelo coherente
         details: {
             tags: ['Medieval History', 'Christmas Market', 'World War II'],
             hotels: 'From 50 EUR/night',
@@ -93,6 +100,7 @@ const initialDestinations = [
         id: 8,
         name: 'LEIPZIG',
         image: leipzig,
+        flightPrice: 55, // Precio de vuelo coherente
         details: {
             tags: ['Music', 'Universities', 'Alternative Culture'],
             hotels: 'From 45 EUR/night',
@@ -104,6 +112,7 @@ const initialDestinations = [
         id: 9,
         name: 'DRESDEN',
         image: dresde,
+        flightPrice: 70, // Precio de vuelo coherente
         details: {
             tags: ['Baroque Architecture', 'Art', 'Elbe River'],
             hotels: 'From 55 EUR/night',
@@ -115,6 +124,7 @@ const initialDestinations = [
         id: 10,
         name: 'BREMEN',
         image: bremen,
+        flightPrice: 60, // Precio de vuelo coherente
         details: {
             tags: ['Fairy Tales', 'Port', 'Old Town'],
             hotels: 'From 50 EUR/night',
@@ -278,7 +288,7 @@ function SwipeAndFlyScreen() {
                         <img src={currentDestination.image} alt={currentDestination.name} className="destination-image" />
                         <div className="destination-info">
                             <h2>{currentDestination.name}</h2>
-                            <p>Flights from: 50 EUR</p>
+                            <p>{`Flights from: ${currentDestination.flightPrice} EUR`}</p>
                         </div>
                         <button className="details-button" onClick={toggleDetails}>
                             <svg viewBox="0 0 24 24" fill="currentColor" className="icon">

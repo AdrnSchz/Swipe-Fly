@@ -5,7 +5,8 @@ import icon from './../assets/images/iconoGris.png';
 import send from './../assets/images/enviar.png';
 import SwipeAndFlyScreen from './SwipeAndFlyScreen'; // Importa el nuevo componente
 
-function Chat({ groupIcon, groupName }) {
+function Chat({ groupIcon, groupName, onGoBack }) {
+  console.log(onGoBack)
   const [showSwipeScreen, setShowSwipeScreen] = useState(false);
 
   const handleStartSwipes = () => {
@@ -21,9 +22,14 @@ function Chat({ groupIcon, groupName }) {
       <div className="chat-header">
         <img src={groupIcon} alt={groupName} className="chat-icon" />
         <h2>{groupName}</h2>
+        {!showSwipeScreen && onGoBack && (
+          <button className="secondary-button" onClick={onGoBack}>
+            BACK TO GROUPS
+          </button>
+        )}
         {showSwipeScreen && (
           <button className="secondary-button" onClick={handleGoBackToChat}>
-            RETURN
+            RETURN TO CHAT
           </button>
         )}
       </div>

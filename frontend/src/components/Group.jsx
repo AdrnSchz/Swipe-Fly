@@ -6,11 +6,11 @@ function Group(props) {
   let backgroundColor;
 
   switch (props.status) {
-    case 'done':
-      backgroundColor = 'var(--color-primary)';
-      break;
     case 'planning':
       backgroundColor = 'var(--color-secondary)';
+      break;
+    case 'done':
+      backgroundColor = 'var(--color-selected)';
       break;
     case 'canceled':
       backgroundColor = 'lightgrey';
